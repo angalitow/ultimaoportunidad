@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Última Oportunidad</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #f04e30;
+            color: white;
+            padding: 20px;
+        }
+
+        #search-container {
+            margin: 20px;
+        }
+
+        #search {
+            padding: 8px;
+            width: 80%;
+            font-size: 16px;
+        }
+
+        #product-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .product {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            text-align: center;
+        }
+
+        .countdown {
+            font-weight: bold;
+            color: red;
+        }
+
+        #cart {
+            border-top: 2px solid #f04e30;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        #cart-items {
+            list-style: none;
+            padding: 0;
+        }
+
+        #cart-items li {
+            margin: 5px 0;
+        }
+
+        #checkout-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            border: none;
+        }
+
+        #qr-container {
+            margin-top: 20px;
+        }
+
+        footer {
+            background-color: #f04e30;
+            color: white;
+            padding: 10px;
+            bottom: 0;
+            width: 100%;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Última Oportunidad</h1>
+        <p>Compra productos antes de su vencimiento con grandes descuentos</p>
+    </header>
+
+    <div id="search-container">
+        <input type="text" id="search" placeholder="Buscar producto..." onkeyup="searchProducts()">
+    </div>
+
+    <main>
+        <section id="product-list"></section>
+    </main>
+
+    <section id="cart">
+        <h2>Carrito de Compras</h2>
+        <ul id="cart-items"></ul>
+        <p id="total-price">Total: $0</p>
+        <button id="checkout-btn" onclick="checkout()">Finalizar Compra</button>
+        <div id="qr-container"></div>
+    </section>
+    
+
+    <form id="clienteForm">
+        <h2>O dinos a dónde y te lo entregamos.</h2>
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required><br><br>
+
+        <label for="direccion">Dirección:</label>
+        <input type="text" id="direccion" name="direccion" required><br><br>
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <footer>
+        <p>&copy; 2025 Última Oportunidad</p>
+    </footer>
+
+    <script>
+        const products = [
+            {
+                "name": "Leche",
+                "image": "leche.jpg",
+                "original_price": 30,
+                "discount_price": 18,
+                "expiration_date": "2025-05-20"
+            },
+            {
+                "name": "Pan Integral",
+                "image": "pan.jpg",
+                "original_price": 50,
+                "discount_price": 30,
+                "expiration_date": "2025-05-19"
+            },
+            {
+                "name": "Queso",
+                "image": "queso.jpg",
+                "original_price": 80,
+                "discount_price": 50,
+                "expiration_date": "2025-05-21"
+            }
+        ];
+
+        const cart = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            displayProducts(products);
+        });
+
+        function displayProducts(productArray) {
+            const productList = document.getElementById("product-list");
+            productList.innerHTML = ""; 
+
+            productArray.forEach(product => {
+                const productElement = document.createElement("div");
+                productElement.classList.add("product");
+                productElement.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" width="100">
+                    <h2>${product.name}</h2>
+                    <p>Precio original: $${product.original_price}</p>
+                    <p>Precio descuento: $${product.discount_price}</p>
+                    <p class="countdown" id="countdown-${product.name}"></p>
+                    <button onclick="addToCart('${product.name}', ${product.discount_price})">Agregar al Carrito</button>
+                `;
+                productList.appendChild(productElement);
+
+                const countdownElement = document.getElementById(`countdown-${product.name}`);
+                updateCountdown(product.expiration_date, countdownElement);
+            });
+        }
+
+        function updateCountdown(expirationDate, element, productElement) {
+    function refreshCountdown() {
+        const now = new Date();
+        const expiryDate = new Date(expirationDate);
+        const timeDiff = expiryDate - now;
+
+        if (timeDiff > 0) {
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            element.textContent = `Expira en: ${days}d ${hours}h ${minutes}m`;
+        } else {
+            element.textContent = "Producto vencido";
+            productElement.style.display = "none"; // Oculta el producto
+        }
+    }
+
+    setInterval(refreshCountdown, 1000);
+}
+const countdownElement = document.getElementById(`countdown-${product.name}`);
+updateCountdown(product.expiration_date, countdownElement, productElement);
+
+
+        function searchProducts() {
+            const searchInput = document.getElementById("search").value.toLowerCase();
+            const filteredProducts = products.filter(product => product.name.toLowerCase().includes(searchInput));
+            displayProducts(filteredProducts);
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartList = document.getElementById("cart-items");
+            cartList.innerHTML = "";
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += item.price;
+                const listItem = document.createElement("li");
+                listItem.textContent = `${item.name} - $${item.price}`;
+                listItem.innerHTML += ` <button onclick="removeFromCart(${index})">Eliminar</button>`;
+                cartList.appendChild(listItem);
+            });
+
+            document.getElementById("total-price").textContent = `Total: $${total}`;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert("El carrito está vacío.");
+                return;
+            }
+
+            const qrContainer = document.getElementById("qr-container");
+            qrContainer.innerHTML = "";
+            const qr = new QRCode(qrContainer, {
+                text: JSON.stringify(cart),
+                width: 128,
+                height: 128
+            });
+
+            alert("Compra realizada. Escanea el QR para recoger tu pedido.");
+            cart.length = 0;
+            updateCart();
+        }
+
+         document.getElementById('clienteForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            let nombre = document.getElementById('nombre').value;
+            let direccion = document.getElementById('direccion').value;
+
+            let mailtoLink = `mailto:angel.torres1784@alumnos.udg.mx?subject=Nuevo%20Cliente&body=Nombre:%20${nombre}%0A%0ADirección:%20${direccion}`;
+            
+            window.location.href = mailtoLink;
+        });
+    </script>
+</body>
+</html>
